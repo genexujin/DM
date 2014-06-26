@@ -1,0 +1,24 @@
+<%@ page language="java" contentType="text/html; charset=utf-8"
+	pageEncoding="utf-8"%>
+</div>
+	<br />
+	<br />
+	<br />
+	<br />
+	<div class="container-fluid">
+		<div class="row-fluid">
+			<div class="span12">
+				<address>
+					本系统由上海微触网络科技有限公司提供<strong>&nbsp;&nbsp;&nbsp;Weitouch, Inc.</strong> 
+				</address>
+			</div>
+		</div>
+	</div>
+</div>
+	<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+	<script src="http://cdn.bootcss.com/jquery/1.10.2/jquery.min.js"></script>
+	<!-- Include all compiled plugins (below), or include individual files as needed -->
+	<script
+		src="http://cdn.bootcss.com/twitter-bootstrap/3.0.3/js/bootstrap.min.js"></script>
+</body>
+</html>
