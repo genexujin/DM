@@ -9,7 +9,7 @@
 		<button type="button" class="btn btn-primary btn-sm"
 			onclick="javascript:window.location.href='editReceipt.do?mode=edit&id=${receiptId}'">&lt; &lt; 返回</button>
 		<button type="button" class="btn btn-primary btn-sm"
-			onclick="javascript:window.location.href='editReceiptLine.do?mode=new&id=${receiptId}'">添加下一条</button>
+			onclick="javascript:window.location.href='editReceiptLine.do?mode=new&receiptId=${receiptId}'">添加下一条</button>
 	</div>
 	<br />
 	<h3>入库项明细</h3>

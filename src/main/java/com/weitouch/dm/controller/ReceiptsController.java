@@ -164,6 +164,7 @@ public class ReceiptsController extends BaseController {
 
 		mav.addObject("msg", "入库信息已保存！");
 		mav.addObject("receipt", receipt);
+		mav.addObject("receiptId", receipt.getId());
 		mav.addObject("activeMenu", "receipt");
 
 		return mav;

@@ -1,21 +1,18 @@
 package com.weitouch.dm.controller;
 
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.List;
 import java.util.Locale;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -99,7 +96,7 @@ public class ItemsController extends BaseController {
 		itemService.delete(Long.parseLong(id), Item.class);
 		this.commitTransction();
 
-		return listItems(request,locale,null);
+		return listItems(request, locale, null);
 	}
 
 	@RequestMapping(value = "/saveItem.do")
@@ -120,6 +117,27 @@ public class ItemsController extends BaseController {
 		mav.addObject("item", item);
 
 		return mav;
+	}
+
+	@RequestMapping(value = "/listItemName.do")
+	public void listItemName(HttpServletRequest request, String term,
+			HttpServletResponse response) {
+
+		logger.debug("start to query Item, term = " + term);
+
+		try {
+			PrintWriter writer = response.getWriter();
+			response.setHeader("Content-type", "text/html;charset=UTF-8");
+			response.setCharacterEncoding("UTF-8");
+			String data = "[{\"id\": \"abc\",\"label\": \"博客园\", \"value\": \"cnblogs\"}, {\"id\": \"abd\",\"label\": \"囧月\", \"value\": \"囧月\"}]";
+			writer.write(data);
+			writer.flush();
+			writer.close();
+
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 }

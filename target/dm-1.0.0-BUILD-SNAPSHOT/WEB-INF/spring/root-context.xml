@@ -14,6 +14,9 @@
         class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">  
         <property name="driverClass" value="com.mysql.jdbc.Driver" />  
         <property name="jdbcUrl" value="jdbc:mysql://weitouch.mysql.rds.aliyuncs.com:3306/dm?useUnicode=true&amp;characterEncoding=UTF-8" />  
+        <!--
+          <property name="jdbcUrl" value="jdbc:mysql://localhost:3306/dm?useUnicode=true&amp;characterEncoding=UTF-8" />
+         -->
         <property name="user" value="dm" />  
         <property name="password" value="welcome1" />
         <property name="minPoolSize" value="5" />
@@ -42,7 +45,7 @@
                 <prop key="hibernate.max_fetch_depth">3</prop>
                 <prop key="hibernate.jdbc.fetch_size">50</prop>
                 <prop key="hibernate.jdbc.batch_size">10</prop>
-                <prop key="hibernate.show_sql">true</prop>                 
+                <prop key="hibernate.show_sql">false</prop>                 
             </props>        
         </property>
     </bean>    
