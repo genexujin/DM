@@ -12,13 +12,10 @@
     $("#itemCode").autocomplete({
       source: "listItemName.do",
       minLength: 2,
-      select: function( event, ui ) {
-        alert( ui.item ?
-          "Selected: " + ui.item.value + " aka " + ui.item.id :
-          "Nothing selected, input was " + this.value );        
-        $("#itemCode").val(ui.item.label);
+      select: function( event, ui ) {       
+        
         $("#itemId").val(ui.item.id);
-        $("#itemName").val(ui.item.value);
+        $("#itemName").val(ui.item.itemName);
       }
     });
   });

@@ -1,10 +1,15 @@
 package com.weitouch.dm.service;
 
+import java.util.List;
+
+import javax.persistence.TypedQuery;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-
+import com.weitouch.dm.Constants;
+import com.weitouch.dm.pojo.Inventory;
 import com.weitouch.dm.pojo.Item;
 
 
@@ -28,6 +33,16 @@ public class ItemServiceImpl extends AbstractService implements ItemService{
         log.info("Item saved with id: " + item.getId());
         return item;
 		
+	}
+	
+	public List<Item> findItemsByCode(String code){
+		
+		code = code.toLowerCase();		
+		TypedQuery<Item> query = em.createNamedQuery(
+				"Item.findByItemCode", Item.class);
+		query.setParameter("code", "%"+code+"%");		
+		List<Item> items = query.getResultList();		
+		return items;		
 	}
 
 		

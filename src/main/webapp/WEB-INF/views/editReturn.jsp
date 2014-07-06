@@ -49,7 +49,15 @@
 						<select class="form-control" id="fromDistId" name="fromDistId"
 							value="${returnorder.fromDistributor.id}">
 							<c:forEach items="${distributors}" var="distributor">
-								<option value="${distributor.id}">${distributor.name}</option>
+								<c:if
+									test="${distributor.id > 1 && distributor.id == returnorder.fromDistributor.id}">
+									<option value="${distributor.id}" selected>${distributor.name}</option>
+								</c:if>
+								<c:if
+									test="${distributor.id > 1 && distributor.id != returnorder.fromDistributor.id}">
+									<option value="${distributor.id}">${distributor.name}</option>
+								</c:if>
+								
 							</c:forEach>
 						</select>
 					</div>

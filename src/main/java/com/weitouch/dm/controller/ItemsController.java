@@ -129,8 +129,29 @@ public class ItemsController extends BaseController {
 			PrintWriter writer = response.getWriter();
 			response.setHeader("Content-type", "text/html;charset=UTF-8");
 			response.setCharacterEncoding("UTF-8");
-			String data = "[{\"id\": \"abc\",\"label\": \"博客园\", \"value\": \"cnblogs\"}, {\"id\": \"abd\",\"label\": \"囧月\", \"value\": \"囧月\"}]";
-			writer.write(data);
+			List<Item> items = itemService.findItemsByCode(term);
+			logger.debug("get query item result size: " + items.size());
+			StringBuffer data = new StringBuffer();
+			data.append("[");
+			for(Item item: items){
+				data.append("{\"id\":\"");
+				data.append(item.getId());
+				data.append("\",");
+				data.append("\"label\":\"");				
+				data.append(item.getCode());
+				data.append("\",");
+				data.append("\"itemName\":\"");				
+				data.append(item.getName());
+				data.append("\",");
+				data.append("\"value\":\"");
+				data.append(item.getCode());
+				data.append("\"");
+				data.append("},");
+			}
+			data.deleteCharAt(data.length()-1);
+			data.append("]");
+			
+			writer.write(data.toString());
 			writer.flush();
 			writer.close();
 
