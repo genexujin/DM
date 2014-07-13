@@ -3,6 +3,25 @@
 <%@ page language="java" contentType="text/html; charset=utf-8"
 	pageEncoding="utf-8"%>
 <%@ include file="header.jspf"%>
+
+ <script>
+ 
+ 
+ 
+  $(function() {     
+    $("#itemCode").autocomplete({
+      source: "listItemName.do",
+      minLength: 2,
+      select: function( event, ui ) {       
+        
+        $("#itemId").val(ui.item.id);
+        $("#itemName").val(ui.item.itemName);
+      }
+    });
+  });
+  </script>
+  
+  
 <div class="row-fluid">
 	<br />
 	<div class="btn-group">
@@ -20,19 +39,25 @@
 			name="receiptId" value="${receiptId}"> 
 		<input type="hidden"
 			class="form-control" id="id" name="id" value="${id}">
+			
+		<div class="form-group">
+			<label for="itemCode" class="col-sm-2 control-label">商品编号</label>
+			<div class="col-sm-10">
+				<input type="text" class="form-control" id="itemCode" placeholder="请输入编号"
+					name="itemCode" value="${line.item.code}">
+			</div>
+		</div>
 
 		<div class="form-group">
 			<label for="itemId" class="col-sm-2 control-label">商品名称</label>
 			<div class="col-sm-10">
-			    <select class="form-control" id="itemId" name="itemId" value="${line.item.id}">
-			       <c:forEach items="${items}" var="item">
-						<option value="${item.id}" <c:if test="${line.item.id == item.id}"> selected </c:if>						
-						>${item.name}&nbsp;${item.model}</option>
-			       </c:forEach>
-			    </select>
-				
-			</div>
+				<input type="hidden" class="form-control" id="itemId" 
+					name="itemId" value="${line.item.id}">
+					<input type="text" class="form-control" id="itemName" readonly placeholder="选择编号后，商品名称会自动填写到这里"
+					name="itemName" value="${line.item.name}">
+			</div>			
 		</div>
+		
 		<div class="form-group">
 			<label for="amount" class="col-sm-2 control-label">数量</label>
 			<div class="col-sm-10">

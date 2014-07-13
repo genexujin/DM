@@ -63,6 +63,8 @@
 			<button type="submit" class="btn btn-default">保存</button>
 			<button type="button" class="btn btn-primary btn-sm"
 				onclick="addNewLine(${shipment.id})">添加出货项</button>
+			<button type="button" class="btn btn-success btn-sm"
+				onclick="openPrintWindow(${shipment.id})">打印</button>
 
 		</div>
 	</form>
@@ -125,6 +127,10 @@
      			window.location="deleteShipmentLine.do?shipmentId="+shipmentId+"&lineId="+oid;
      		}
      	}
+       
+       function openPrintWindow(shipmentId){
+    	   window.open ( "printShipment.do?shipmentId="+shipmentId , "_blank" );
+    	}
     
     </script>
 

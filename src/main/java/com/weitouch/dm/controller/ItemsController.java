@@ -35,13 +35,17 @@ public class ItemsController extends BaseController {
 
 	@RequestMapping(value = "/listItems.do")
 	public ModelAndView listItems(HttpServletRequest request, Locale locale,
-			String pageNumInput) {
+			String pageNumInput, String code) {
 
 		logger.debug("Input param: pageNumInput=" + pageNumInput);
+		logger.debug("Input param: code=" + code);
 
 		ModelAndView mav = new ModelAndView("itemList");
-
-		Long count = itemService.getCounts(Item.class);
+		
+		if(code==null)
+			code="";
+		
+		Long count = itemService.countItemsByCode(code);
 
 		long totalPage = count.longValue() / Constants.QUERY_PAGE_SIZE;
 		long mod = count.longValue() % Constants.QUERY_PAGE_SIZE;
@@ -54,7 +58,7 @@ public class ItemsController extends BaseController {
 		if (pageNumInput != null)
 			pageNum = Integer.parseInt(pageNumInput);
 
-		List<Item> list = itemService.listItems(pageNum, Item.class);
+		List<Item> list = itemService.findItemsByCode(pageNum, code);
 		logger.debug("got the item list!");
 
 		HttpSession session = request.getSession();
@@ -65,6 +69,8 @@ public class ItemsController extends BaseController {
 		mav.addObject("activeMenu", "item");
 		mav.addObject("list", list);
 		mav.addObject("totalPage", totalPage);
+		mav.addObject("code", code);
+		
 
 		return mav;
 	}
@@ -96,7 +102,7 @@ public class ItemsController extends BaseController {
 		itemService.delete(Long.parseLong(id), Item.class);
 		this.commitTransction();
 
-		return listItems(request, locale, null);
+		return listItems(request, locale, null, null);
 	}
 
 	@RequestMapping(value = "/saveItem.do")

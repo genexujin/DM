@@ -14,7 +14,8 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "items")
 @NamedQueries({
-	@NamedQuery(name = "Item.findByItemCode", query = "select o from Item o where lower(o.code) like :code")})
+	@NamedQuery(name = "Item.findByItemCode", query = "select o from Item o where lower(o.code) like :code"),
+	@NamedQuery(name = "Item.countByItemCode", query = "select count(o) from Item o where lower(o.code) like :code")})
 
 public class Item implements Serializable {
 	private static final long serialVersionUID = 1L;

@@ -81,6 +81,7 @@ public class ShipmentController extends BaseController {
 
 	/**
 	 * 编辑入库单
+	 * 
 	 * @param mode
 	 * @param id
 	 * @return
@@ -92,14 +93,15 @@ public class ShipmentController extends BaseController {
 				+ " shipment id = " + id);
 
 		ModelAndView mav = new ModelAndView("editShipment");
-		List<Distributor> distributors = receiptService.findAll(Distributor.class);
+		List<Distributor> distributors = receiptService
+				.findAll(Distributor.class);
 		mav.addObject("distributors", distributors);
 
 		if (!mode.equals("new")) {
 			Shipment shipment = receiptService.findById(Integer.parseInt(id),
 					Shipment.class);
-			mav.addObject("shipment", shipment);			
-			
+			mav.addObject("shipment", shipment);
+
 		} else {
 			Shipment shipment = new Shipment();
 			mav.addObject("shipment", shipment);
@@ -110,7 +112,31 @@ public class ShipmentController extends BaseController {
 	}
 
 	/**
+	 * 编辑入库单
+	 * 
+	 * @param mode
+	 * @param id
+	 * @return
+	 */
+	@RequestMapping(value = "/printShipment.do")
+	public ModelAndView printShipment(String shipmentId) {
+
+		logger.debug("start to print shipment, params: shipmentId="
+				+ shipmentId);
+
+		ModelAndView mav = new ModelAndView("printShipment");
+
+		Shipment shipment = receiptService.findById(
+				Integer.parseInt(shipmentId), Shipment.class);
+		mav.addObject("shipment", shipment);
+		mav.addObject("activeMenu", "shipment");
+		
+		return mav;
+	}
+
+	/**
 	 * 删除入库单
+	 * 
 	 * @param request
 	 * @param locale
 	 * @param id
@@ -120,14 +146,16 @@ public class ShipmentController extends BaseController {
 	public ModelAndView deleteShipment(HttpServletRequest request,
 			Locale locale, String id) {
 
-		logger.debug("start to delete Shipment, params: " + " Shipmentid = " + id);
+		logger.debug("start to delete Shipment, params: " + " Shipmentid = "
+				+ id);
 
 		this.beginTransaction();
 		Shipment shipment = receiptService.findById(new Integer(id),
 				Shipment.class);
-		for (ShipLine line : shipment.getLines()) {//反冲库存
+		for (ShipLine line : shipment.getLines()) {// 反冲库存
 			inventoryService.receivGoods(line.getItem(), line.getAmount());
-			inventoryService.receivGoods(shipment.getToDistributor(), line.getItem(), -line.getAmount());
+			inventoryService.receivGoods(shipment.getToDistributor(),
+					line.getItem(), -line.getAmount());
 		}
 		receiptService.delete(Long.parseLong(id), Shipment.class);
 		this.commitTransction();
@@ -137,13 +165,15 @@ public class ShipmentController extends BaseController {
 
 	/**
 	 * 保存入库单
+	 * 
 	 * @param id
 	 * @param shipDate
 	 * @param remark
 	 * @return
 	 */
 	@RequestMapping(value = "/saveShipment.do")
-	public ModelAndView saveShipment(String id, String shipDate, String remark, String distId) {
+	public ModelAndView saveShipment(String id, String shipDate, String remark,
+			String distId) {
 
 		logger.debug("start to save Shipment, Shipment = " + id);
 		logger.debug("start to save Shipment, ship date = " + shipDate);
@@ -165,20 +195,22 @@ public class ShipmentController extends BaseController {
 		shipment.setRemark(remark);
 
 		this.beginTransaction();
-		
-		Distributor toDist = receiptService.findById(new Integer(distId), Distributor.class);		
+
+		Distributor toDist = receiptService.findById(new Integer(distId),
+				Distributor.class);
 		shipment.setToDistributor(toDist);
-		
-		Distributor fromDist = receiptService.findById(new Integer(1), Distributor.class);
-		
+
+		Distributor fromDist = receiptService.findById(new Integer(1),
+				Distributor.class);
+
 		shipment.setFromDistributor(fromDist);
-		
+
 		shipment = receiptService.save(shipment, Shipment.class);
 		this.commitTransction();
-		
-		List<Distributor> distributors = receiptService.findAll(Distributor.class);
+
+		List<Distributor> distributors = receiptService
+				.findAll(Distributor.class);
 		mav.addObject("distributors", distributors);
-		
 
 		mav.addObject("msg", "入库信息已保存！");
 		mav.addObject("shipment", shipment);
@@ -189,13 +221,15 @@ public class ShipmentController extends BaseController {
 
 	/**
 	 * 编辑入库行
+	 * 
 	 * @param mode
 	 * @param receiptId
 	 * @param id
 	 * @return
 	 */
 	@RequestMapping(value = "/editShipmentLine.do")
-	public ModelAndView editShipmentLine(String mode, String shipmentId, String id) {
+	public ModelAndView editShipmentLine(String mode, String shipmentId,
+			String id) {
 
 		logger.debug("start to add receipt line, shipmentId = " + shipmentId);
 
@@ -223,6 +257,7 @@ public class ShipmentController extends BaseController {
 
 	/**
 	 * 保存入库行
+	 * 
 	 * @param receiptId
 	 * @param id
 	 * @param itemId
@@ -235,7 +270,8 @@ public class ShipmentController extends BaseController {
 	public ModelAndView saveShipmentLine(String shipmentId, String id,
 			String itemId, int amount, double price, String remark) {
 
-		logger.debug("start to save saveShipmentLine line, shipmentId = " + shipmentId);
+		logger.debug("start to save saveShipmentLine line, shipmentId = "
+				+ shipmentId);
 		logger.debug("start to save saveShipmentLine line, line id = " + id);
 
 		ModelAndView mav = new ModelAndView("editShipmentLine");
@@ -264,7 +300,8 @@ public class ShipmentController extends BaseController {
 		this.beginTransaction();
 		line = receiptService.save(line, ShipLine.class);
 		inventoryService.receivGoods(item, -amount);
-		inventoryService.receivGoods(line.getShipment().getToDistributor(),item, amount);
+		inventoryService.receivGoods(line.getShipment().getToDistributor(),
+				item, amount);
 		this.commitTransction();
 
 		mav.addObject("shipmentId", shipmentId);
@@ -277,6 +314,7 @@ public class ShipmentController extends BaseController {
 
 	/**
 	 * 删除入库行
+	 * 
 	 * @param receiptId
 	 * @param lineId
 	 * @return
@@ -291,7 +329,8 @@ public class ShipmentController extends BaseController {
 		ShipLine line = receiptService.findById(new Integer(lineId),
 				ShipLine.class);
 		inventoryService.receivGoods(line.getItem(), line.getAmount());
-		inventoryService.receivGoods(line.getShipment().getToDistributor(), line.getItem(), -line.getAmount());
+		inventoryService.receivGoods(line.getShipment().getToDistributor(),
+				line.getItem(), -line.getAmount());
 		receiptService.delete(Long.parseLong(lineId), ShipLine.class);
 		this.commitTransction();
 

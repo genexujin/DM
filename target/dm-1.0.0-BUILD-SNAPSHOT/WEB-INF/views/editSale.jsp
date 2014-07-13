@@ -16,8 +16,12 @@
 	<form id="receiptForm" role="form" action="saveSale.do" method="post">
 		<input type="hidden" class="form-control" id="id" name="id"
 			value="${sale.id}">
-		<input type="hidden" name="fromDistId"
-			value="${sale.fromDistributor.id}" />
+		<c:choose>
+			<c:when test="${!isAdmin}">
+				<input type="hidden" name="fromDistId"
+					value="${sale.fromDistributor.id}" />
+			</c:when>
+		</c:choose>
 		<div class="form-group">
 			<label for="shipDate" class="col-sm-2 control-label">销售日期</label>
 			<div class="col-sm-10">
@@ -45,7 +49,18 @@
 						<select class="form-control" id="fromDistId" name="fromDistId"
 							value="${sale.fromDistributor.id}">
 							<c:forEach items="${distributors}" var="distributor">
-								<option value="${distributor.id}">${distributor.name}</option>
+								<c:if
+									test="${distributor.id > 1 && distributor.id == sale.fromDistributor.id}">
+									<option value="${distributor.id}" selected>${distributor.name}</option>
+								</c:if>
+								<c:if
+									test="${distributor.id > 1 && distributor.id != sale.fromDistributor.id}">
+									<option value="${distributor.id}">${distributor.name}</option>
+								</c:if>
+								<c:if
+									test="${distributor.id ==1}">
+									<option value="${distributor.id}">${distributor.name}</option>
+								</c:if>
 							</c:forEach>
 						</select>
 					</div>
