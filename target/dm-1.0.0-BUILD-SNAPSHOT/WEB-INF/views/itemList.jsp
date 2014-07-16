@@ -6,9 +6,20 @@
 	<br />
 	<h3>商品列表</h3>
 		<br />
-	<button type="button" class="btn btn-primary btn-sm"
-		onclick="javascript:window.location.href='editItem.do?mode=new'">新增商品</button>
+	
 	<br />
+	
+	<form id="itemForm" role="form" action="listItems.do" method="post">
+		<input	type="hidden" class="form-control" id="pageNumInput" name="pageNumInput" value="${currentPage}">
+		<div class="form-group">
+			<label for="exampleInputEmail1">商品编号</label> <input
+				type="text" class="form-control" id="code" name="code" value="${code}"
+				placeholder="请输入商品编号，然后点击查询">
+		</div>
+		<button type="submit" class="btn btn-success btn-sm">查询</button>
+		<button type="button" class="btn btn-primary btn-sm"
+		onclick="javascript:window.location.href='editItem.do?mode=new'">新增商品</button>
+	</form>
 	<br />
 	<table
 		class="table table-striped table-bordered table-hover table-responsive table-condensed">
@@ -52,7 +63,7 @@
 	<ul class="pagination">
 		<c:forEach begin="1" end="${totalPage}" var="i" step="1">
 			<li class="${currentPage==i?'active':''}"><a
-				href="listItems.do?pageNumInput=${i}">${i}</a></li>
+				href="listItems.do?pageNumInput=${i}&code=${code}">${i}</a></li>
 		</c:forEach>
 	</ul>
 

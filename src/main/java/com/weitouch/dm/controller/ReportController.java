@@ -153,14 +153,19 @@ public class ReportController extends BaseController {
 		cell = headRow.createCell(i++);
 		cell.setCellStyle(headStyle);
 		cell.setCellValue("日期");
+		
+		cell = headRow.createCell(i++);
+		cell.setCellStyle(headStyle);
+		cell.setCellValue("编号");
 
 		cell = headRow.createCell(i++);
 		cell.setCellStyle(headStyle);
 		cell.setCellValue("商品名");
-
+		
+		
 		cell = headRow.createCell(i++);
 		cell.setCellStyle(headStyle);
-		cell.setCellValue("型号/规格");
+		cell.setCellValue("类别");
 
 		cell = headRow.createCell(i++);
 		cell.setCellStyle(headStyle);
@@ -212,6 +217,10 @@ public class ReportController extends BaseController {
 					cell = dataRow.createCell(h++);
 					cell.setCellStyle(bodyStyle);
 					cell.setCellValue(shipDate);
+					
+					cell = dataRow.createCell(h++);
+					cell.setCellStyle(bodyStyle);
+					cell.setCellValue(line.getItem().getCode());
 
 					cell = dataRow.createCell(h++);
 					cell.setCellStyle(bodyStyle);

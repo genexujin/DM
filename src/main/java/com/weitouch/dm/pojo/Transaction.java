@@ -55,7 +55,7 @@ public class Transaction implements Serializable {
 	
 	@OneToMany(cascade = { CascadeType.REFRESH, CascadeType.PERSIST,
             CascadeType.MERGE }, mappedBy = "shipments")
-    @OrderBy("price ASC")
+    //@OrderBy("price ASC")
     private Set<ShipLine> lines = new HashSet<ShipLine>();
 	
 	public double getTotalPrice(){

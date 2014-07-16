@@ -63,6 +63,8 @@
 			<button type="submit" class="btn btn-default">保存</button>
 			<button type="button" class="btn btn-primary btn-sm"
 				onclick="addNewLine(${shipment.id})">添加出货项</button>
+			<button type="button" class="btn btn-success btn-sm"
+				onclick="openPrintWindow(${shipment.id})">打印</button>
 
 		</div>
 	</form>
@@ -74,7 +76,7 @@
 		class="table table-striped table-bordered table-hover table-responsive table-condensed">
 		<thead>
 			<tr>
-
+				<th>编号</th>
 				<th>类别</th>
 				<th>名称</th>
 				<th>价格</th>
@@ -89,6 +91,7 @@
 		<tbody>
 			<c:forEach items="${shipment.lines}" var="line">
 				<tr>
+					<td><c:out value="${line.item.code}"></c:out></td>
 					<td><c:out value="${line.item.model}"></c:out></td>
 					<td><c:out value="${line.item.name}"></c:out></td>
 					<td><c:out value="${line.price}"></c:out></td>
@@ -125,6 +128,10 @@
      			window.location="deleteShipmentLine.do?shipmentId="+shipmentId+"&lineId="+oid;
      		}
      	}
+       
+       function openPrintWindow(shipmentId){
+    	   window.open ( "printShipment.do?shipmentId="+shipmentId , "_blank" );
+    	}
     
     </script>
 

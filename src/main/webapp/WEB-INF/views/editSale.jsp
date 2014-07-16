@@ -100,7 +100,7 @@
 		class="table table-striped table-bordered table-hover table-responsive table-condensed">
 		<thead>
 			<tr>
-
+				<th>编号</th>
 				<th>类别</th>
 				<th>名称</th>
 				<th>价格</th>
@@ -112,6 +112,7 @@
 		<tbody>
 			<c:forEach items="${sale.lines}" var="line">
 				<tr>
+					<td><c:out value="${line.item.code}"></c:out></td>
 					<td><c:out value="${line.item.model}"></c:out></td>
 					<td><c:out value="${line.item.name}"></c:out></td>
 					<td><c:out value="${line.price}"></c:out></td>

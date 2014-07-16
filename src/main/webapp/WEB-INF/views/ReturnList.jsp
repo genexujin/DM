@@ -44,7 +44,7 @@
 			<tr>
 				<th>经销商</th>
 				<th>日期</th>
-				<th>总销售金额</th>
+				<th>总退货金额</th>
 				<th>备注</th>
 				<th style="width: 20%;">操作</th>
 			</tr>

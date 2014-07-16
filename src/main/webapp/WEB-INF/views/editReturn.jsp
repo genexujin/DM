@@ -92,12 +92,12 @@
 
 
 	<br />
-	<h3>销售项目</h3>
+	<h3>退货项目</h3>
 	<table
 		class="table table-striped table-bordered table-hover table-responsive table-condensed">
 		<thead>
 			<tr>
-
+				<th>编号</th>
 				<th>类别</th>
 				<th>名称</th>
 				<th>价格</th>
@@ -109,6 +109,7 @@
 		<tbody>
 			<c:forEach items="${returnorder.lines}" var="line">
 				<tr>
+					<td><c:out value="${line.item.code}"></c:out></td>
 					<td><c:out value="${line.item.model}"></c:out></td>
 					<td><c:out value="${line.item.name}"></c:out></td>
 					<td><c:out value="${line.price}"></c:out></td>
