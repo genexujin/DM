@@ -297,17 +297,23 @@ public class ShipmentController extends BaseController {
 		line.setPrice(price);
 		line.setRemark(remark);
 
-		this.beginTransaction();
-		line = receiptService.save(line, ShipLine.class);
-		inventoryService.receivGoods(item, -amount);
-		inventoryService.receivGoods(line.getShipment().getToDistributor(),
-				item, amount);
-		this.commitTransction();
-
+		try {
+			this.beginTransaction();
+			line = receiptService.save(line, ShipLine.class);
+			inventoryService.receivGoods(item, -amount);
+			inventoryService.receivGoods(line.getShipment().getToDistributor(),
+					item, amount);
+			this.commitTransction();
+			mav.addObject("msg", "出货项已保存,库存已更新！");
+			mav.addObject("success",true);
+		} catch (Exception e) {
+			this.rollbackTransction();
+			mav.addObject("msg", "出货项保存时发生错误，请检查录入数据！");
+		}
 		mav.addObject("shipmentId", shipmentId);
 		mav.addObject("line", line);
 		mav.addObject("activeMenu", "shipment");
-		mav.addObject("msg", "出货项已保存,库存已更新！");
+		
 
 		return mav;
 	}

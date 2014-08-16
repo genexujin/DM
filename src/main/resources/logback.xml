@@ -22,7 +22,8 @@
 
     <logger name="org.springframework" level="INFO" />    
 	<logger name="com.weitouch" level="DEBUG" />
-	<logger name="org.hibernate" level="INFO" />	
+	<logger name="org.hibernate.SQL" level="DEBUG" />
+	<logger name="org.hibernate.type" level="trace" />		
 
 	<root level="INFO">
 		<appender-ref ref="STDOUT" />

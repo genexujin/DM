@@ -84,8 +84,8 @@ html * {
 									class="dropdown-toggle">报表<strong class="caret"></strong></a>
 									<ul class="dropdown-menu">
 										<li><a href="enterReport.do?txnType=sale">销售报表</a></li>
-										<li><a href="enterReport.do">收货报表</a></li>
-										<li><a href="enterReport.do?txnType=shipment">出货报表</a></li>
+										<li><a href="enterReport.do">入库报表</a></li>
+										<li><a href="enterReport.do?txnType=shipment">发货报表</a></li>
 										<li><a href="enterReport.do?txnType=return">退货报表</a></li>
 									</ul></li>
 							</c:when>

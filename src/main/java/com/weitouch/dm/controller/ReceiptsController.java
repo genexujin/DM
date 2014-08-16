@@ -243,16 +243,22 @@ public class ReceiptsController extends BaseController {
 		line.setAmount(amount);
 		line.setPrice(price);
 		line.setRemark(remark);
-
-		this.beginTransaction();
-		line = receiptService.save(line, ShipLine.class);
-		inventoryService.receivGoods(item, amount);
-		this.commitTransction();
-
+        
+		try {
+			this.beginTransaction();
+			line = receiptService.save(line, ShipLine.class);
+			inventoryService.receivGoods(item, amount);
+			this.commitTransction();
+			mav.addObject("msg", "入库商品已保存！");
+			mav.addObject("success",true);
+		} catch (Exception e) {
+			this.rollbackTransction();
+			mav.addObject("msg", "保存时出现错误，请检查录入信息！");
+		}
 		mav.addObject("receiptId", receiptId);
 		mav.addObject("line", line);
 		mav.addObject("activeMenu", "receipt");
-		mav.addObject("msg", "入库商品已保存！");
+		
 
 		return mav;
 	}

@@ -1,9 +1,10 @@
 package com.weitouch.dm.controller;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -26,6 +27,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.weitouch.dm.Constants;
 import com.weitouch.dm.ExcelUtil;
+import com.weitouch.dm.pojo.Distributor;
 import com.weitouch.dm.pojo.ShipLine;
 import com.weitouch.dm.pojo.Transaction;
 import com.weitouch.dm.pojo.Users;
@@ -71,6 +73,233 @@ public class ReportController extends BaseController {
 		return mav;
 	}
 
+	@RequestMapping(value = "/enterSumReport.do")
+	public ModelAndView enterSumReport(String txnType, String distributorId,
+			HttpServletRequest request) {
+
+		// 传递是否是admin到页面
+		HttpSession session = request.getSession();
+		Users u = (Users) session.getAttribute(Constants.LOGIN_USER);
+		if (!u.isAdmin())
+			return new ModelAndView("redirect:login.do");
+
+		ModelAndView mav = new ModelAndView("TxnSumReport");
+		String reportTitle = null;
+		reportTitle = "供应商出货/退货 汇总报告";
+
+		// 获取所有distributor列表
+		List<Distributor> distributors = txnService.findAll(Distributor.class);
+		mav.addObject("distributors", distributors);
+		mav.addObject("distributorId", distributorId);
+		mav.addObject("reportTitle", reportTitle);
+		mav.addObject("txnType", txnType);
+
+		return mav;
+	}
+
+	@RequestMapping(value = "/generateSumReport.do")
+	public ModelAndView generateSumReport(String txnType, String startDate,
+			String distributorId, String endDate, String fileName,
+			HttpServletRequest request, HttpServletResponse response) {
+
+		// 传递是否是admin到页面
+		HttpSession session = request.getSession();
+		Users u = (Users) session.getAttribute(Constants.LOGIN_USER);
+		if (!u.isAdmin())
+			return new ModelAndView("redirect:login.do");
+
+		if (txnType == null || startDate == null || endDate == null
+				|| fileName == null) {
+			ModelAndView mav = new ModelAndView("TxnSumReport");
+			mav.addObject("reportTitle", "供应商出货/退货 汇总报告");
+			mav.addObject("txnType", "shipment");
+			return mav;
+		}
+
+		logger.debug("start to parse start and end date...");
+		Date start = null, end = null;
+		if (startDate != null && endDate != null) {
+			try {
+				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+				start = sdf.parse(startDate);
+				end = sdf.parse(endDate);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+
+		logger.debug("start to generate excel report...");
+
+		List shipments = txnService.sumByDateTxnTypeWithDistributor("shipment",
+				start, end, new Long(distributorId));
+		List returns = txnService.sumByDateTxnTypeWithDistributor("returns",
+				start, end, new Long(distributorId));
+
+		// logger.debug("get query result, transaction size : " + txns.size());
+
+		response.setContentType("application/binary;charset=UTF-8");
+
+		ServletOutputStream outputStream = null;
+
+		try {
+			fileName = new String((fileName).getBytes(), "ISO8859_1");
+
+			response.setHeader("Content-disposition", "attachment; filename="
+					+ fileName + ".xlsx");// 组装附件名称和格式
+			outputStream = response.getOutputStream();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		exportSumExcel(shipments, returns, txnType, fileName, outputStream);
+
+		return enterSumReport(txnType, distributorId, request);
+	}
+
+	private void exportSumExcel(List shipments, List returns, String txnType,
+			String fileName, ServletOutputStream outputStream) {
+
+		logger.debug("start in export Excel methods, get transaction size : "
+				+ shipments.size());
+
+		// 创建一个workbook 对应一个excel应用文件
+		XSSFWorkbook workBook = new XSSFWorkbook();
+		// 在workbook中添加一个sheet,对应Excel文件中的sheet
+		XSSFSheet sheet = workBook.createSheet(fileName);
+		ExcelUtil exportUtil = new ExcelUtil(workBook, sheet);
+		XSSFCellStyle headStyle = exportUtil.getHeadStyle();
+		XSSFCellStyle bodyStyle = exportUtil.getBodyStyle();
+		// 构建表头
+		XSSFRow headRow = sheet.createRow(0);
+		XSSFCell cell = null;
+		int i = 0;
+
+		cell = headRow.createCell(i++);
+		cell.setCellStyle(headStyle);
+		cell.setCellValue("商品编号");
+		
+		cell = headRow.createCell(i++);
+		cell.setCellStyle(headStyle);
+		cell.setCellValue("名称");
+
+		
+		cell = headRow.createCell(i++);
+		cell.setCellStyle(headStyle);
+		cell.setCellValue("类别");
+		
+		
+		cell = headRow.createCell(i++);
+		cell.setCellStyle(headStyle);
+		cell.setCellValue("单价");
+
+		cell = headRow.createCell(i++);
+		cell.setCellStyle(headStyle);
+		cell.setCellValue("出货总数");
+
+		cell = headRow.createCell(i++);
+		cell.setCellStyle(headStyle);
+		cell.setCellValue("退货总数");
+		
+
+		HashMap returnMap = null;
+
+		if (returns != null && returns.size() > 0) {
+
+			returnMap = new HashMap();
+			for (Object returnSums : returns) {
+				Object[] returnLine = (Object[]) returnSums;
+				returnMap.put(returnLine[0].toString(), returnLine[1].toString());
+			}
+
+		}
+		int j = 1;
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		// 构建表体数据
+		if (shipments != null && shipments.size() > 0) {
+			for (Object line : shipments) {
+				Object[] itemSum = (Object[]) line;
+				int h = 0;
+				XSSFRow dataRow = sheet.createRow(j++);
+				cell = dataRow.createCell(h++);
+				cell.setCellStyle(bodyStyle);
+				cell.setCellValue(itemSum[0].toString());
+				
+				cell = dataRow.createCell(h++);
+				cell.setCellStyle(bodyStyle);
+				cell.setCellValue(itemSum[2].toString());
+				
+				cell = dataRow.createCell(h++);
+				cell.setCellStyle(bodyStyle);
+				cell.setCellValue(itemSum[3].toString());
+				
+				cell = dataRow.createCell(h++);
+				cell.setCellStyle(bodyStyle);
+				cell.setCellValue(itemSum[4].toString());
+
+				cell = dataRow.createCell(h++);
+				cell.setCellStyle(bodyStyle);
+				cell.setCellValue(itemSum[1].toString());
+
+				cell = dataRow.createCell(h++);
+				cell.setCellStyle(bodyStyle);
+				if (returnMap!=null && returnMap.get(itemSum[0].toString()) != null) {
+					cell.setCellValue(returnMap.get(itemSum[0].toString()).toString());
+					returnMap.remove(itemSum[0].toString());//Remove from the return list.
+				} else {
+					cell.setCellValue("0");
+				}
+				
+				
+			}
+		}
+		
+		//start to loop over return list
+		if (returnMap != null && returnMap.size() > 0) {
+			Iterator it  = returnMap.keySet().iterator();
+			while(it.hasNext()){
+				Object key = it.next();
+				int h = 0;
+				XSSFRow dataRow = sheet.createRow(j++);
+				cell = dataRow.createCell(h++);
+				cell.setCellStyle(bodyStyle);
+				cell.setCellValue(key.toString());
+				
+				cell = dataRow.createCell(h++);
+				cell.setCellStyle(bodyStyle);
+				cell.setCellValue("");
+				
+				cell = dataRow.createCell(h++);
+				cell.setCellStyle(bodyStyle);
+				cell.setCellValue("");
+
+				cell = dataRow.createCell(h++);
+				cell.setCellStyle(bodyStyle);
+				cell.setCellValue("0");
+
+				cell = dataRow.createCell(h++);
+				cell.setCellStyle(bodyStyle);
+				cell.setCellValue(returnMap.get(key).toString());				
+				
+			}
+		}
+		
+		
+		try {
+			workBook.write(outputStream);
+			outputStream.flush();
+			outputStream.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				outputStream.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
+	}
+
 	@RequestMapping(value = "/generateReport.do")
 	public ModelAndView generateReport(String txnType, String startDate,
 			String endDate, String fileName, HttpServletRequest request,
@@ -106,13 +335,13 @@ public class ReportController extends BaseController {
 
 		List<Transaction> txns = txnService.queryByDateRangeAndTxnType(txnType,
 				start, end);
-		
-		//logger.debug("get query result, transaction size : " + txns.size());
-		
+
+		// logger.debug("get query result, transaction size : " + txns.size());
+
 		response.setContentType("application/binary;charset=UTF-8");
-		
+
 		ServletOutputStream outputStream = null;
-		
+
 		try {
 			fileName = new String((fileName).getBytes(), "ISO8859_1");
 
@@ -130,9 +359,10 @@ public class ReportController extends BaseController {
 
 	private void exportExcel(List<Transaction> txns, String txnType,
 			String fileName, ServletOutputStream outputStream) {
-		
-		logger.debug("start in export Excel methods, get transaction size : " + txns.size());
-		
+
+		logger.debug("start in export Excel methods, get transaction size : "
+				+ txns.size());
+
 		// 创建一个workbook 对应一个excel应用文件
 		XSSFWorkbook workBook = new XSSFWorkbook();
 		// 在workbook中添加一个sheet,对应Excel文件中的sheet
@@ -153,7 +383,7 @@ public class ReportController extends BaseController {
 		cell = headRow.createCell(i++);
 		cell.setCellStyle(headStyle);
 		cell.setCellValue("日期");
-		
+
 		cell = headRow.createCell(i++);
 		cell.setCellStyle(headStyle);
 		cell.setCellValue("编号");
@@ -161,8 +391,7 @@ public class ReportController extends BaseController {
 		cell = headRow.createCell(i++);
 		cell.setCellStyle(headStyle);
 		cell.setCellValue("商品名");
-		
-		
+
 		cell = headRow.createCell(i++);
 		cell.setCellStyle(headStyle);
 		cell.setCellValue("类别");
@@ -184,21 +413,20 @@ public class ReportController extends BaseController {
 
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 			int j = 1;
-			
+
 			for (Transaction txn : txns) {
 				logger.debug("txn id: " + txn.getId());
-				
+
 				String distributorName = null;
-				
-				if(!txnType.equals("receipt")){
+
+				if (!txnType.equals("receipt")) {
 					distributorName = txnType.equals("shipment") ? txn
 							.getToDistributor().getName() : txn
-							.getFromDistributor().getName();					
+							.getFromDistributor().getName();
 				}
-					
-				
+
 				logger.debug("distributor: " + distributorName);
-						
+
 				String remark = txn.getRemark();
 				String shipDate = sdf.format(txn.getShipDate());
 
@@ -207,7 +435,7 @@ public class ReportController extends BaseController {
 					XSSFRow dataRow = sheet.createRow(j++);
 					logger.debug("j value is :" + j);
 					int h = 0;
-					
+
 					if (!txnType.equals("receipt")) {
 						cell = dataRow.createCell(h++);
 						cell.setCellStyle(bodyStyle);
@@ -217,7 +445,7 @@ public class ReportController extends BaseController {
 					cell = dataRow.createCell(h++);
 					cell.setCellStyle(bodyStyle);
 					cell.setCellValue(shipDate);
-					
+
 					cell = dataRow.createCell(h++);
 					cell.setCellStyle(bodyStyle);
 					cell.setCellValue(line.getItem().getCode());

@@ -118,7 +118,7 @@ public class ItemsController extends BaseController {
 		this.beginTransaction();
 		itemService.saveItem(item);
 		this.commitTransction();
-
+		mav.addObject("saved","true");
 		mav.addObject("msg", "商品信息已保存！");
 		mav.addObject("item", item);
 

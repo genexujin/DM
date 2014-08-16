@@ -125,12 +125,14 @@ public class ReturnController extends BaseController {
 			Distributor distributor = inventoryService.findById(new Long(
 					fromDistId).intValue(), Distributor.class);
 			rt.setFromDistributor(distributor);
+			
 			mav.addObject("returnorder", rt);
 
 		} else {
 			Return rt = new Return();
 			Distributor distributor = inventoryService.findById(new Long(
 					fromDistId).intValue(), Distributor.class);
+			
 			rt.setFromDistributor(distributor);
 			rt.setToDistributor(inventoryService.findById(1, Distributor.class));
 			mav.addObject("returnorder", rt);
@@ -301,17 +303,23 @@ public class ReturnController extends BaseController {
 		line.setPrice(price);
 		line.setRemark(remark);
 
-		this.beginTransaction();
-		line = returnService.save(line, ShipLine.class);
-		inventoryService.receivGoods(line.getShipment().getFromDistributor(),
-				item, -amount);
-		inventoryService.receivGoods(item, amount);
-		this.commitTransction();
-
+		try {
+			this.beginTransaction();
+			line = returnService.save(line, ShipLine.class);
+			inventoryService.receivGoods(line.getShipment()
+					.getFromDistributor(), item, -amount);
+			inventoryService.receivGoods(item, amount);
+			this.commitTransction();
+			mav.addObject("msg", "退货项已保存,库存已更新！");
+			mav.addObject("success",true);
+		} catch (Exception e) {
+			this.rollbackTransction();
+			mav.addObject("msg", "退货项保存时发生错误，请检查录入信息！");
+		}
 		mav.addObject("returnId", returnId);
 		mav.addObject("line", line);
 		mav.addObject("activeMenu", "return");
-		mav.addObject("msg", "退货项已保存,库存已更新！");
+		
 
 		return mav;
 	}

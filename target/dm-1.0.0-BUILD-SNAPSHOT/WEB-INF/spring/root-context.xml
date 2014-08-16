@@ -10,23 +10,18 @@
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd">
 
 	<!-- Root Context: defines shared resources visible to all other web components -->
+
 	<bean id="dataSource"  
         class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">  
+        
+        
         <property name="driverClass" value="com.mysql.jdbc.Driver" /> 
-           
+                <!--
         <property name="jdbcUrl" value="jdbc:mysql://weitouch.mysql.rds.aliyuncs.com:3306/dm?useUnicode=true&amp;characterEncoding=UTF-8" />  
-        <!--
-          <property name="jdbcUrl" value="jdbc:mysql://localhost:3306/dm?useUnicode=true&amp;characterEncoding=UTF-8" />
-       -->
+    --> 
+        <property name="jdbcUrl" value="jdbc:mysql://localhost:3306/dm?useUnicode=true&amp;characterEncoding=UTF-8" />
         <property name="user" value="dm" />  
-        <property name="password" value="welcome1" />
-        <property name="minPoolSize" value="5" />
-        <property name="maxPoolSize" value="10" />
-        <property name="initialPoolSize" value="5" />
-        <property name="maxIdleTime" value="600" />
-        <property name="acquireIncrement" value="5" />
-        <property name="idleConnectionTestPeriod" value="60" />
-        <property name="testConnectionOnCheckout" value="true" />  
+        <property name="password" value="welcome1" />     
     </bean>
     
     <bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">

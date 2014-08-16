@@ -74,8 +74,9 @@
 			</div>
 		</div>
 		<div class="col-sm-offset-2 col-sm-10">
+		<c:if test="${!success}">
 			<button type="submit" class="btn btn-default">保存</button>
-
+		</c:if>
 		</div>
 	</form>
 	<br />

@@ -19,5 +19,9 @@ public abstract class BaseController {
 	  protected void commitTransction(){
 		  tx.commit(status);
 	  }
+	  
+	  protected void rollbackTransction(){
+		  tx.rollback(status);
+	  }
 
 }

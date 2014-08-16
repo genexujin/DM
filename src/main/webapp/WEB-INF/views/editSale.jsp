@@ -44,7 +44,7 @@
 			</c:when>
 			<c:otherwise>
 				<div class="form-group">
-					<label for="distId" class="col-sm-2 control-label">经销商</label>
+					<label for="distId" class="col-sm-2 control-label">分销商</label>
 					<div class="col-sm-10">
 						<select class="form-control" id="fromDistId" name="fromDistId"
 							value="${sale.fromDistributor.id}">

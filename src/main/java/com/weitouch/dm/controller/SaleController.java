@@ -295,16 +295,22 @@ public class SaleController extends BaseController {
 		line.setPrice(price);
 		line.setRemark(remark);
 
-		this.beginTransaction();
-		line = saleService.save(line, ShipLine.class);
-		inventoryService.receivGoods(line.getShipment().getFromDistributor(),
-				item, -amount);
-		this.commitTransction();
-
+		try {
+			this.beginTransaction();
+			line = saleService.save(line, ShipLine.class);
+			inventoryService.receivGoods(line.getShipment()
+					.getFromDistributor(), item, -amount);
+			this.commitTransction();
+			mav.addObject("msg", "销售项已保存,库存已更新！");
+			mav.addObject("success",true);
+		} catch (Exception e) {
+			this.rollbackTransction();
+			mav.addObject("msg", "销售项保存时发生错误，请检查录入信息！");
+		}
 		mav.addObject("saleId", saleId);
 		mav.addObject("line", line);
 		mav.addObject("activeMenu", "sale");
-		mav.addObject("msg", "销售项已保存,库存已更新！");
+		
 
 		return mav;
 	}
