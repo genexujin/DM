@@ -120,9 +120,9 @@ public class SaleController extends BaseController {
 
 		if (!mode.equals("new")) {
 			Sale sale = saleService.findById(Integer.parseInt(id), Sale.class);
-			Distributor distributor = inventoryService.findById(new Long(
-					fromDistId).intValue(), Distributor.class);
-			sale.setFromDistributor(distributor);
+//			Distributor distributor = inventoryService.findById(new Long(
+//					fromDistId).intValue(), Distributor.class);
+//			sale.setFromDistributor(distributor);
 			mav.addObject("sale", sale);
 
 		} else {

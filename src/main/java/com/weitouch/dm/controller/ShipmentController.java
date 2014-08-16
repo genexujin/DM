@@ -45,13 +45,32 @@ public class ShipmentController extends BaseController {
 
 	@RequestMapping(value = "/listShipment.do")
 	public ModelAndView listShipment(HttpServletRequest request, Locale locale,
-			String pageNumInput) {
+			Long distributorId, String pageNumInput) {
 
 		logger.debug("Input param: pageNumInput=" + pageNumInput);
 
 		ModelAndView mav = new ModelAndView("ShipmentList");
 
-		Long count = receiptService.getCounts(Shipment.class);
+		// 传递是否是admin到页面
+		HttpSession session = request.getSession();
+		Users u = (Users) session.getAttribute(Constants.LOGIN_USER);
+		mav.addObject("isAdmin", u.isAdmin());
+
+		// 获取所有distributor列表
+		List<Distributor> distributors = receiptService
+				.findAll(Distributor.class);
+		mav.addObject("distributors", distributors);
+
+		// 如果已经选择了distributor则获取该distributor的销售列表
+		if (distributorId == null) {// 如果没有选择，则默认显示登录用户自己的库存
+			distributorId = u.getDistributor().getId();
+		}
+		
+		Distributor distributor = inventoryService.findById(new Long(
+				distributorId).intValue(), Distributor.class);
+		
+
+		Long count = receiptService.getDistributorShipmentCounts(distributor);
 
 		long totalPage = count.longValue() / Constants.QUERY_PAGE_SIZE;
 		long mod = count.longValue() % Constants.QUERY_PAGE_SIZE;
@@ -64,15 +83,13 @@ public class ShipmentController extends BaseController {
 		if (pageNumInput != null)
 			pageNum = Integer.parseInt(pageNumInput);
 
-		List<Shipment> list = receiptService.listItems(pageNum, Shipment.class);
+		List<Shipment> list = receiptService.listShipment(pageNum, distributor);
 		logger.debug("got the Shipment list!");
+		
 
-		HttpSession session = request.getSession();
-		Users u = (Users) session.getAttribute(Constants.LOGIN_USER);
-
-		mav.addObject("currentPage", pageNum);
-		mav.addObject("isAdmin", u.isAdmin());
+		mav.addObject("currentPage", pageNum);		
 		mav.addObject("activeMenu", "shipment");
+		mav.addObject("distributorId", distributor.getId());
 		mav.addObject("list", list);
 		mav.addObject("totalPage", totalPage);
 
@@ -130,7 +147,7 @@ public class ShipmentController extends BaseController {
 				Integer.parseInt(shipmentId), Shipment.class);
 		mav.addObject("shipment", shipment);
 		mav.addObject("activeMenu", "shipment");
-		
+
 		return mav;
 	}
 
@@ -152,6 +169,9 @@ public class ShipmentController extends BaseController {
 		this.beginTransaction();
 		Shipment shipment = receiptService.findById(new Integer(id),
 				Shipment.class);
+
+		Long distributorId = shipment.getToDistributor().getId();
+
 		for (ShipLine line : shipment.getLines()) {// 反冲库存
 			inventoryService.receivGoods(line.getItem(), line.getAmount());
 			inventoryService.receivGoods(shipment.getToDistributor(),
@@ -160,7 +180,7 @@ public class ShipmentController extends BaseController {
 		receiptService.delete(Long.parseLong(id), Shipment.class);
 		this.commitTransction();
 
-		return listShipment(request, locale, null);
+		return listShipment(request, locale, distributorId, null);
 	}
 
 	/**
@@ -305,7 +325,7 @@ public class ShipmentController extends BaseController {
 					item, amount);
 			this.commitTransction();
 			mav.addObject("msg", "出货项已保存,库存已更新！");
-			mav.addObject("success",true);
+			mav.addObject("success", true);
 		} catch (Exception e) {
 			this.rollbackTransction();
 			mav.addObject("msg", "出货项保存时发生错误，请检查录入数据！");
@@ -313,7 +333,6 @@ public class ShipmentController extends BaseController {
 		mav.addObject("shipmentId", shipmentId);
 		mav.addObject("line", line);
 		mav.addObject("activeMenu", "shipment");
-		
 
 		return mav;
 	}

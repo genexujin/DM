@@ -11,6 +11,34 @@
 		onclick="javascript:window.location.href='editShipment.do?mode=new'">出货</button>
 	<br />
 	<br />
+	
+	<c:choose>
+		<c:when test="${isAdmin}">
+			<form id="shipmentForm" class="form-inline" role="form"
+				action="listShipment.do" method="post">
+				<div class="form-group">
+					<label for="distId" class="sr-only">分销商</label>
+					<div>
+						<select class="form-control" id="distId" name="distributorId"
+							value="${distributorId}">
+							<c:forEach items="${distributors}" var="distributor">
+								<c:if test="${distributor.id == distributorId}">
+									<option value="${distributor.id}" selected>${distributor.name}</option>
+								</c:if>
+								<c:if test="${distributor.id != distributorId}">
+									<option value="${distributor.id}">${distributor.name}</option>
+								</c:if>
+							</c:forEach>
+						</select>
+					</div>
+				</div>
+				<button type="submit" class="btn btn-default">查看</button>
+			</form>
+			<br />
+			<br />
+		</c:when>
+	</c:choose>
+	
 	<table
 		class="table table-striped table-bordered table-hover table-responsive table-condensed">
 		<thead>
@@ -52,7 +80,7 @@
 	<ul class="pagination">
 		<c:forEach begin="1" end="${totalPage}" var="i" step="1">
 			<li class="${currentPage==i?'active':''}"><a
-				href="listShipment.do?pageNumInput=${i}">${i}</a></li>
+				href="listShipment.do?pageNumInput=${i}&distributorId=${distributorId}">${i}</a></li>
 		</c:forEach>
 	</ul>
 

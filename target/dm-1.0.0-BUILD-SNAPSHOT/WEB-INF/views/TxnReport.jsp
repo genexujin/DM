@@ -34,7 +34,7 @@
 			<label for="endDate" class="col-sm-2 control-label">结束日期</label>
 			<div class="col-sm-10">
 				<input type="date" class="form-control" id="endDate"
-					name="endDate" placeholder="入库日期 "
+					name="endDate" placeholder="结束日期 "
 					value="<fmt:formatDate value="${endDate}" pattern="yyyy-MM-dd"/>">
 			</div>
 		</div>		

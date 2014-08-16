@@ -19,6 +19,8 @@ import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
 import javax.persistence.Table;
@@ -26,6 +28,7 @@ import javax.persistence.Table;
 
 
 @Entity
+@NamedQueries({ @NamedQuery(name = "Shipment.findByDistId", query = "select o from Shipment o where o.toDistributor.id = :distId  order by o.shipDate desc") })
 @DiscriminatorValue(value="shipment")
 public class Shipment extends Transaction {
 		

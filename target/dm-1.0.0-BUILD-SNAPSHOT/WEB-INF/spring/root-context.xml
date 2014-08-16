@@ -12,15 +12,15 @@
 	<!-- Root Context: defines shared resources visible to all other web components -->
 
 	<bean id="dataSource"  
-        class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">  
+        class="org.springframework.jdbc.datasource.DriverManagerDataSource">  
         
         
-        <property name="driverClass" value="com.mysql.jdbc.Driver" /> 
-                <!--
-        <property name="jdbcUrl" value="jdbc:mysql://weitouch.mysql.rds.aliyuncs.com:3306/dm?useUnicode=true&amp;characterEncoding=UTF-8" />  
-    --> 
-        <property name="jdbcUrl" value="jdbc:mysql://localhost:3306/dm?useUnicode=true&amp;characterEncoding=UTF-8" />
-        <property name="user" value="dm" />  
+        <property name="driverClassName" value="com.mysql.jdbc.Driver" />                 
+        <property name="url" value="jdbc:mysql://weitouch.mysql.rds.aliyuncs.com:3306/dm?useUnicode=true&amp;characterEncoding=UTF-8" />  
+    	<!--
+        <property name="url" value="jdbc:mysql://localhost:3306/dm?useUnicode=true&amp;characterEncoding=UTF-8" />
+        --> 
+        <property name="username" value="dm" />  
         <property name="password" value="welcome1" />     
     </bean>
     

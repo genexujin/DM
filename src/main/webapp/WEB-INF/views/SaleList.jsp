@@ -72,7 +72,7 @@
 	<ul class="pagination">
 		<c:forEach begin="1" end="${totalPage}" var="i" step="1">
 			<li class="${currentPage==i?'active':''}"><a
-				href="listSale.do?pageNumInput=${i}">${i}</a></li>
+				href="listSale.do?pageNumInput=${i}&distributorId=${distributorId}">${i}</a></li>
 		</c:forEach>
 	</ul>
 

@@ -122,10 +122,10 @@ public class ReturnController extends BaseController {
 		if (!mode.equals("new")) {
 			Return rt = returnService.findById(Integer.parseInt(id),
 					Return.class);
-			Distributor distributor = inventoryService.findById(new Long(
-					fromDistId).intValue(), Distributor.class);
-			rt.setFromDistributor(distributor);
-			
+//			Distributor distributor = inventoryService.findById(new Long(
+//					fromDistId).intValue(), Distributor.class);
+//			rt.setFromDistributor(distributor);
+//			
 			mav.addObject("returnorder", rt);
 
 		} else {

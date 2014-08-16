@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFRow;
@@ -85,11 +86,12 @@ public class ReportController extends BaseController {
 
 		ModelAndView mav = new ModelAndView("TxnSumReport");
 		String reportTitle = null;
-		reportTitle = "供应商出货/退货 汇总报告";
+		reportTitle = "供应商出货/退货 汇总";
 
-		// 获取所有distributor列表
-		List<Distributor> distributors = txnService.findAll(Distributor.class);
-		mav.addObject("distributors", distributors);
+		// // 获取所有distributor列表
+		// List<Distributor> distributors =
+		// txnService.findAll(Distributor.class);
+		// mav.addObject("distributors", distributors);
 		mav.addObject("distributorId", distributorId);
 		mav.addObject("reportTitle", reportTitle);
 		mav.addObject("txnType", txnType);
@@ -99,8 +101,8 @@ public class ReportController extends BaseController {
 
 	@RequestMapping(value = "/generateSumReport.do")
 	public ModelAndView generateSumReport(String txnType, String startDate,
-			String distributorId, String endDate, String fileName,
-			HttpServletRequest request, HttpServletResponse response) {
+			String endDate, String fileName, HttpServletRequest request,
+			HttpServletResponse response) {
 
 		// 传递是否是admin到页面
 		HttpSession session = request.getSession();
@@ -130,10 +132,11 @@ public class ReportController extends BaseController {
 
 		logger.debug("start to generate excel report...");
 
-		List shipments = txnService.sumByDateTxnTypeWithDistributor("shipment",
-				start, end, new Long(distributorId));
-		List returns = txnService.sumByDateTxnTypeWithDistributor("returns",
-				start, end, new Long(distributorId));
+		// List shipments =
+		// txnService.sumByDateTxnTypeWithDistributor("shipment",
+		// start, end, new Long(distributorId));
+		// List returns = txnService.sumByDateTxnTypeWithDistributor("returns",
+		// start, end, new Long(distributorId));
 
 		// logger.debug("get query result, transaction size : " + txns.size());
 
@@ -151,139 +154,170 @@ public class ReportController extends BaseController {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		exportSumExcel(shipments, returns, txnType, fileName, outputStream);
+		exportSumExcel(fileName, start, end, outputStream);
 
-		return enterSumReport(txnType, distributorId, request);
+		return null;
 	}
 
-	private void exportSumExcel(List shipments, List returns, String txnType,
-			String fileName, ServletOutputStream outputStream) {
+	private void exportSumExcel(String fileName, Date start, Date end,
+			ServletOutputStream outputStream) {
 
-		logger.debug("start in export Excel methods, get transaction size : "
-				+ shipments.size());
+		logger.debug("start in export Excel methods");
 
 		// 创建一个workbook 对应一个excel应用文件
 		XSSFWorkbook workBook = new XSSFWorkbook();
-		// 在workbook中添加一个sheet,对应Excel文件中的sheet
-		XSSFSheet sheet = workBook.createSheet(fileName);
-		ExcelUtil exportUtil = new ExcelUtil(workBook, sheet);
-		XSSFCellStyle headStyle = exportUtil.getHeadStyle();
-		XSSFCellStyle bodyStyle = exportUtil.getBodyStyle();
-		// 构建表头
-		XSSFRow headRow = sheet.createRow(0);
-		XSSFCell cell = null;
-		int i = 0;
 
-		cell = headRow.createCell(i++);
-		cell.setCellStyle(headStyle);
-		cell.setCellValue("商品编号");
-		
-		cell = headRow.createCell(i++);
-		cell.setCellStyle(headStyle);
-		cell.setCellValue("名称");
+		// Get all distributors
+		List<Distributor> distributors = txnService.findAll(Distributor.class);
+		for (Distributor distributor : distributors) {
+			if (distributor.getId() > 1) {
+				// 在workbook中添加一个sheet,对应Excel文件中的sheet
+				XSSFSheet sheet = workBook.createSheet(distributor.getName());
+				ExcelUtil exportUtil = new ExcelUtil(workBook, sheet);
+				XSSFCellStyle headStyle = exportUtil.getHeadStyle();
+				XSSFCellStyle bodyStyle = exportUtil.getBodyStyle();
 
-		
-		cell = headRow.createCell(i++);
-		cell.setCellStyle(headStyle);
-		cell.setCellValue("类别");
-		
-		
-		cell = headRow.createCell(i++);
-		cell.setCellStyle(headStyle);
-		cell.setCellValue("单价");
+				// 构建表头
+				XSSFRow headRow = sheet.createRow(0);
+				XSSFCell cell = null;
+				int i = 0;
 
-		cell = headRow.createCell(i++);
-		cell.setCellStyle(headStyle);
-		cell.setCellValue("出货总数");
+				cell = headRow.createCell(i++);
+				cell.setCellStyle(headStyle);
+				cell.setCellValue("商品编号");
 
-		cell = headRow.createCell(i++);
-		cell.setCellStyle(headStyle);
-		cell.setCellValue("退货总数");
-		
+				cell = headRow.createCell(i++);
+				cell.setCellStyle(headStyle);
+				cell.setCellValue("名称");
 
-		HashMap returnMap = null;
+				cell = headRow.createCell(i++);
+				cell.setCellStyle(headStyle);
+				cell.setCellValue("类别");
 
-		if (returns != null && returns.size() > 0) {
+				cell = headRow.createCell(i++);
+				cell.setCellStyle(headStyle);
+				cell.setCellValue("单价");
 
-			returnMap = new HashMap();
-			for (Object returnSums : returns) {
-				Object[] returnLine = (Object[]) returnSums;
-				returnMap.put(returnLine[0].toString(), returnLine[1].toString());
-			}
+				cell = headRow.createCell(i++);
+				cell.setCellStyle(headStyle);
+				cell.setCellValue("出货总数");
 
-		}
-		int j = 1;
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-		// 构建表体数据
-		if (shipments != null && shipments.size() > 0) {
-			for (Object line : shipments) {
-				Object[] itemSum = (Object[]) line;
-				int h = 0;
-				XSSFRow dataRow = sheet.createRow(j++);
-				cell = dataRow.createCell(h++);
-				cell.setCellStyle(bodyStyle);
-				cell.setCellValue(itemSum[0].toString());
-				
-				cell = dataRow.createCell(h++);
-				cell.setCellStyle(bodyStyle);
-				cell.setCellValue(itemSum[2].toString());
-				
-				cell = dataRow.createCell(h++);
-				cell.setCellStyle(bodyStyle);
-				cell.setCellValue(itemSum[3].toString());
-				
-				cell = dataRow.createCell(h++);
-				cell.setCellStyle(bodyStyle);
-				cell.setCellValue(itemSum[4].toString());
+				cell = headRow.createCell(i++);
+				cell.setCellStyle(headStyle);
+				cell.setCellValue("退货总数");
 
-				cell = dataRow.createCell(h++);
-				cell.setCellStyle(bodyStyle);
-				cell.setCellValue(itemSum[1].toString());
+				cell = headRow.createCell(i++);
+				cell.setCellStyle(headStyle);
+				cell.setCellValue("销售额");
 
-				cell = dataRow.createCell(h++);
-				cell.setCellStyle(bodyStyle);
-				if (returnMap!=null && returnMap.get(itemSum[0].toString()) != null) {
-					cell.setCellValue(returnMap.get(itemSum[0].toString()).toString());
-					returnMap.remove(itemSum[0].toString());//Remove from the return list.
-				} else {
-					cell.setCellValue("0");
+				List shipments = txnService.sumByDateTxnTypeWithDistributor(
+						"shipment", start, end, distributor.getId());
+				List returns = txnService.sumByDateTxnTypeWithDistributor(
+						"returns", start, end, distributor.getId());
+
+				HashMap returnMap = null;
+
+				if (returns != null && returns.size() > 0) {
+					returnMap = new HashMap();
+					for (Object returnSums : returns) {
+						Object[] returnLine = (Object[]) returnSums;
+						returnMap.put(returnLine[0].toString(),
+								returnLine[1].toString());
+					}
 				}
 				
-				
+				int j = 1;
+				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+				// 构建表体数据
+				if (shipments != null && shipments.size() > 0) {
+					for (Object line : shipments) {
+						Object[] itemSum = (Object[]) line;
+						int h = 0;
+						XSSFRow dataRow = sheet.createRow(j++);
+						cell = dataRow.createCell(h++);
+						cell.setCellStyle(bodyStyle);
+						cell.setCellValue(itemSum[0].toString());
+
+						cell = dataRow.createCell(h++);
+						cell.setCellStyle(bodyStyle);
+						cell.setCellValue(itemSum[2].toString());
+
+						cell = dataRow.createCell(h++);
+						cell.setCellStyle(bodyStyle);
+						cell.setCellValue(itemSum[3].toString());
+
+						cell = dataRow.createCell(h++);
+						cell.setCellStyle(bodyStyle);
+						cell.setCellValue(itemSum[4].toString());
+
+						cell = dataRow.createCell(h++);
+						cell.setCellStyle(bodyStyle);
+						cell.setCellValue(itemSum[1].toString());
+
+						cell = dataRow.createCell(h++);
+						cell.setCellStyle(bodyStyle);
+						if (returnMap != null
+								&& returnMap.get(itemSum[0].toString()) != null) {
+							cell.setCellValue(returnMap.get(
+									itemSum[0].toString()).toString());
+							returnMap.remove(itemSum[0].toString());// Remove
+																	// from the
+																	// return
+																	// list.
+						} else {
+							cell.setCellValue("0");
+						}
+
+					}
+				}
+
+				// start to loop over return list
+				if (returnMap != null && returnMap.size() > 0) {
+					Iterator it = returnMap.keySet().iterator();
+					while (it.hasNext()) {
+						Object key = it.next();
+						int h = 0;
+						XSSFRow dataRow = sheet.createRow(j++);
+						cell = dataRow.createCell(h++);
+						cell.setCellStyle(bodyStyle);
+						cell.setCellValue(key.toString());
+
+						cell = dataRow.createCell(h++);
+						cell.setCellStyle(bodyStyle);
+						cell.setCellValue("");
+
+						cell = dataRow.createCell(h++);
+						cell.setCellStyle(bodyStyle);
+						cell.setCellValue("");
+						
+						cell = dataRow.createCell(h++);
+						cell.setCellStyle(bodyStyle);
+						cell.setCellValue("");
+
+						cell = dataRow.createCell(h++);
+						cell.setCellStyle(bodyStyle);
+						cell.setCellValue("0");
+
+						cell = dataRow.createCell(h++);
+						cell.setCellStyle(bodyStyle);
+						cell.setCellValue(returnMap.get(key).toString());
+
+					}
+				}
+				//start to calculate the income
+				for(int k=1;k<j;k++){
+					XSSFRow dataRow = sheet.getRow(k);
+					int idx = k+1;
+					cell = dataRow.createCell(6);
+					cell.setCellStyle(bodyStyle);
+					String strFormula= "(E"+idx+"-F"+idx+")*D"+idx;
+					cell.setCellType(HSSFCell.CELL_TYPE_FORMULA);
+					cell.setCellFormula(strFormula);					
+				}
+
 			}
 		}
-		
-		//start to loop over return list
-		if (returnMap != null && returnMap.size() > 0) {
-			Iterator it  = returnMap.keySet().iterator();
-			while(it.hasNext()){
-				Object key = it.next();
-				int h = 0;
-				XSSFRow dataRow = sheet.createRow(j++);
-				cell = dataRow.createCell(h++);
-				cell.setCellStyle(bodyStyle);
-				cell.setCellValue(key.toString());
-				
-				cell = dataRow.createCell(h++);
-				cell.setCellStyle(bodyStyle);
-				cell.setCellValue("");
-				
-				cell = dataRow.createCell(h++);
-				cell.setCellStyle(bodyStyle);
-				cell.setCellValue("");
 
-				cell = dataRow.createCell(h++);
-				cell.setCellStyle(bodyStyle);
-				cell.setCellValue("0");
-
-				cell = dataRow.createCell(h++);
-				cell.setCellStyle(bodyStyle);
-				cell.setCellValue(returnMap.get(key).toString());				
-				
-			}
-		}
-		
-		
 		try {
 			workBook.write(outputStream);
 			outputStream.flush();
